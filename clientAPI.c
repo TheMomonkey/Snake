@@ -6,14 +6,10 @@
 |       client API in C          |
 |                                |
 * ------------------------------ *
-
-
 Authors: T. Hilaire, J. Brajard
 Licence: GPL
-
 File: clientAPI.c
 	Functions for the Game API (connexion to the Coding Game Server)
-
 Copyright 2016-2017 T. Hilaire, J. Brajard
 */
 
@@ -45,7 +41,7 @@ Copyright 2016-2017 T. Hilaire, J. Brajard
 */
 int sockfd = -1;		        /* socket descriptor, equal to -1 when we are not yet connected */
 char buffer[MAX_LENGTH];		/* global buffer used to send message (global so that it is not allocated/desallocated for each message) */
-int debug=1;			        /* debug constant; we do not use here a #DEFINE, since it allows the client to declare 'extern int debug;' set it to 1 to have debug information, without having to re-compile labyrinthAPI.c */
+int debug=0;			        /* debug constant; we do not use here a #DEFINE, since it allows the client to declare 'extern int debug;' set it to 1 to have debug information, without having to re-compile labyrinthAPI.c */
 char stream_size[HEAD_SIZE] ;
 char playerName[20];            /* name of the player, stored to display it in debug */
 

@@ -7,14 +7,11 @@
 | Coding Game Server       |
 |                          |
 * ------------------------ *
-
 Authors: T. Hilaire, T. Gautier
 Licence: GPL
-
 File: snkaeAPI.h
 	Contains the client API for the Snake game
 	-> based on clientAPI.h
-
 Copyright 2019 T. Hilaire, T. Gautier
 */
 
@@ -22,7 +19,7 @@ Copyright 2019 T. Hilaire, T. Gautier
 #include <stdio.h>
 #include "snakeAPI.h"
 
-unsigned char nbW; 	/* store the nb of walls, used for getGame (the user do not have to pass them once again */
+unsigned int nbW; 	/* store the nb of walls, used for getGame (the user do not have to pass them once again */
 
 /* -------------------------------------
  * Initialize connection with the server
