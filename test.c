@@ -13,8 +13,6 @@ int main(){
 	t_move hisMove;
 	int lecture = 0; //lecture clavier
 	int nbTours = 0;
-	int longueur = 1;
-	int posx, posy;
 
 	//connexion au serveur
 	connectToServer("polydev.cia-polytech-sorbonne.fr", 8080, "sadouki");
@@ -23,8 +21,6 @@ int main(){
 	waitForSnakeGame("RANDOM_PLAYER difficulty=2 timeout=100 start=0 seed=1", gameName, &X, &Y, &nbWalls);
 	int* walls = (int*)malloc(4*nbWalls*sizeof(int));
 	hePlays = getSnakeArena(walls);
-	posx = hePlays ? X-3 : 2;
-	posy = Y/2;
 
 	//INFOS UTILES
 	//joueur 0 commence à ( 2  , H/2)
@@ -37,24 +33,12 @@ int main(){
 	//affichage arène + infos arène
 	printArena();
 	printf("X:%d\tY:%d\n", X, Y);
-	//coordonees de tous les murs
-	// int j = 0;
-	// for (int i = 0; i < 4*nbWalls; i=i+4)
-	// {
-	// 	printf("coordonnées mur %d : (%d ; %d) to (%d ; %d)\n",j, walls[i], walls[i+1], walls[i+2], walls[i+3]);
-	// 	j++;
-	// }
 
 	while(returnCode == NORMAL_MOVE){ //NORMAL_MOVE = 0
 		if(hePlays){
 			returnCode = getMove(&hisMove);
 		}
 		else{
-			if (!(myMove%3)){
-				myMove = 0;
-			}
-			//idée générale: tourne en rond (myMove++) tant qu'il n'y a pas de mur qui le bloque
-			//sinon le contourne, le tout en ayant conscience de sa taille 
 
 			printf("eh jou wesh ! (nbTours = %d) : ",nbTours);
 			scanf("%d", &lecture);
@@ -73,11 +57,7 @@ int main(){
 					break;
 			}
 
-			if (!(nbTours%11)){
-				longueur++;
-			}
 			nbTours++;
-
 			returnCode = sendMove(myMove);
 		}
 		hePlays = !hePlays;
