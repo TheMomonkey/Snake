@@ -13,9 +13,10 @@ int main(){
 	t_move hisMove;
 	int lecture = 0; //lecture clavier
 	int nbTours = 0;
+	int longueur = 0;
 
 	//connexion au serveur
-	connectToServer("polydev.cia-polytech-sorbonne.fr", 8080, "sadouki");
+	connectToServer("polydev.cia-polytech-sorbonne.fr", 8080, "asadouki");
 
 	//récupération des infos
 	waitForSnakeGame("RANDOM_PLAYER difficulty=2 timeout=100 start=0 seed=1", gameName, &X, &Y, &nbWalls);
@@ -31,16 +32,22 @@ int main(){
 	// WEST = 3
 	
 	//affichage arène + infos arène
-	printArena();
 	printf("X:%d\tY:%d\n", X, Y);
-
+	int j = 0;
+	for (int i = 0; i < 4*nbWalls; i=i+4)
+	{
+		printf("coordonnées mur %d : (%d ; %d) to (%d ; %d)\n",j, walls[i], walls[i+1], walls[i+2], walls[i+3]);
+		j++;
+	}
+	
 	while(returnCode == NORMAL_MOVE){ //NORMAL_MOVE = 0
+		printArena();
 		if(hePlays){
 			returnCode = getMove(&hisMove);
 		}
 		else{
 
-			printf("eh jou wesh ! (nbTours = %d) : ",nbTours);
+			printf("eh jou wesh ! (nbTours = %d, longueur = %d) : ",nbTours, longueur);
 			scanf("%d", &lecture);
 			switch(lecture){
 				case 8:
@@ -56,14 +63,50 @@ int main(){
 					myMove = WEST;
 					break;
 			}
-
+			if (nbTours%10 == 0){
+				longueur++;
+			}
 			nbTours++;
 			returnCode = sendMove(myMove);
 		}
 		hePlays = !hePlays;
-		printArena();
 	}
-	
+
+	//affichage final
+	if (returnCode == 1){
+		printf(R"EOF(
+
+
+ /$$     /$$ /$$$$$$  /$$   /$$       /$$      /$$  /$$$$$$  /$$   /$$       /$$     /$$ /$$$$$$  /$$     /$$       /$$
+|  $$   /$$//$$__  $$| $$  | $$      | $$  /$ | $$ /$$__  $$| $$$ | $$      |  $$   /$$//$$__  $$|  $$   /$$/      | $$
+ \  $$ /$$/| $$  \ $$| $$  | $$      | $$ /$$$| $$| $$  \ $$| $$$$| $$       \  $$ /$$/| $$  \ $$ \  $$ /$$/       | $$
+  \  $$$$/ | $$  | $$| $$  | $$      | $$/$$ $$ $$| $$  | $$| $$ $$ $$        \  $$$$/ | $$$$$$$$  \  $$$$/        | $$
+   \  $$/  | $$  | $$| $$  | $$      | $$$$_  $$$$| $$  | $$| $$  $$$$         \  $$/  | $$__  $$   \  $$/         |__/
+    | $$   | $$  | $$| $$  | $$      | $$$/ \  $$$| $$  | $$| $$\  $$$          | $$   | $$  | $$    | $$              
+    | $$   |  $$$$$$/|  $$$$$$/      | $$/   \  $$|  $$$$$$/| $$ \  $$          | $$   | $$  | $$    | $$           /$$
+    |__/    \______/  \______/       |__/     \__/ \______/ |__/  \__/          |__/   |__/  |__/    |__/          |__/
+                                                                                                                     
+                                                                                                                     
+		)EOF");
+		printf("\n");
+	}
+	if (returnCode == -1){
+		printf(R"EOF(
+
+
+ /$$        /$$$$$$   /$$$$$$  /$$$$$$$$ /$$$$$$$ 
+| $$       /$$__  $$ /$$__  $$| $$_____/| $$__  $$
+| $$      | $$  \ $$| $$  \__/| $$      | $$  \ $$
+| $$      | $$  | $$|  $$$$$$ | $$$$$   | $$$$$$$/
+| $$      | $$  | $$ \____  $$| $$__/   | $$__  $$
+| $$      | $$  | $$ /$$  \ $$| $$      | $$  \ $$
+| $$$$$$$$|  $$$$$$/|  $$$$$$/| $$$$$$$$| $$  | $$
+|________/ \______/  \______/ |________/|__/  |__/
+                                                  
+        )EOF");
+        printf("\n");
+	}
+
 	closeConnection();
 	free(walls);
 }
