@@ -16,7 +16,8 @@ int main(){
 	int longueur = 0;
 
 	//connexion au serveur
-	connectToServer("polydev.cia-polytech-sorbonne.fr", 8080, "asadouki");
+	//connectToServer("polydev.cia-polytech-sorbonne.fr", 8080, "asadouki");
+	connectToServer("localhost", 1234, "asadouki");
 
 	//récupération des infos
 	waitForSnakeGame("RANDOM_PLAYER difficulty=2 timeout=100 start=0 seed=1", gameName, &X, &Y, &nbWalls);

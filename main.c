@@ -9,15 +9,18 @@ int main(){
 	char gameName[50];
 	int X, Y, nbWalls, hePlays;
 	t_return_code returnCode = NORMAL_MOVE;
-	t_move myMove = 1;
-	t_move hisMove, precMove;
+	t_move myMove = -1;
+	t_move hisMove;
 	int nbTours = 0;
 	int longueur = 0;
-	int forbiddenMoves[4]; //{N,S,E,W} 1 si interdit
+	int forbiddenMoves[4] = {0,0,0,0}; //{N,S,E,W} 1 si interdit
 
 	//connexion au serveur
-	connectToServer("polydev.cia-polytech-sorbonne.fr", 8080, "asadouki");
-
+	//en externe:
+	//connectToServer("polydev.cia-polytech-sorbonne.fr", 8080, "asadouki");
+	//en interne:
+	connectToServer("localhost", 1234, "asadouki");
+	
 	//récupération des infos
 	waitForSnakeGame("RANDOM_PLAYER difficulty=2 timeout=1000 start=0 seed=1", gameName, &X, &Y, &nbWalls);
 	int* walls = (int*)malloc(4*nbWalls*sizeof(int));
@@ -46,6 +49,7 @@ int main(){
 		printArena();
 		if(hePlays){
 			returnCode = getMove(&hisMove);
+			//maj de sa position
 			switch(hisMove){
 				case 0:
 					hisY -= 1;
@@ -77,23 +81,59 @@ int main(){
 			// Faire gaffe aux murs, aux bords, à pas revenir sur ses pas, à sa queue, à l'autre, aux cul-de-sac
 			// Attention aux boucles infinies !
 
-			precMove = myMove;
 			//faire gaffe aux bords:
+			if (myX == 0){
+				forbiddenMoves[3] = 1;
+				printf("here bords 1\n");
+			}
+			if (myX == X-1){
+				forbiddenMoves[1] = 1;
+				printf("here bords 2\n");
+			}
+			if (myY == 0){
+				forbiddenMoves[0] = 1;
+				printf("here bords 3\n");
+			}
+			if (myY == Y-1){
+				forbiddenMoves[2] = 1;
+				printf("here bords 4\n");
+			}
+			//faire gaffe aux cul-de-sac:
+			// switch(myMove){
+			// 	case 0:
+			// 		while(projX++ )
+			// 		break;
+			// 	case 1:
+			// 		forbiddenMoves[3]= 1;
+			// 		break;
+			// 	case 2:
+			// 		forbiddenMoves[0]= 1;
+			// 		break;
+			// 	case 3:
+			// 		forbiddenMoves[1]= 1;
+			// 		break; 
+			// }
 
 			//ne pas revenir sur ses pas:
 			switch(myMove){
 				case 0:
 					forbiddenMoves[2] = 1;
+					printf("here pas 1\n");
 					break;
 				case 1:
 					forbiddenMoves[3]= 1;
+					printf("here pas 2\n");
 					break;
 				case 2:
 					forbiddenMoves[0]= 1;
+					printf("here pas 3\n");
 					break;
 				case 3:
 					forbiddenMoves[1]= 1;
-					break; 
+					printf("here pas 4\n");
+					break;
+				default:
+					break;
 			}
 			//faire gaffe à sa queue:
 
@@ -108,34 +148,51 @@ int main(){
 				if (walls[i] == myX && walls[i+1] == myY){
 					if(walls[i+2] == myX-1){ //mur à gauche
 						forbiddenMoves[3] = 1;
+						printf("here mur 1\n");
 					}
 					if(walls[i+2] == myX+1){ //mur à droite
 						forbiddenMoves[1] = 1;
+						printf("here mur2\n");
 					}
 					if(walls[i+3] == myY-1){ //mur en haut
 						forbiddenMoves[0] = 1;
+						printf("here mur3\n");
 					}
 					if(walls[i+3] == myY+1){ //mur en bas
 						forbiddenMoves[2] = 1;
+						printf("here mur4\n");
 					}
 				}
 				if (walls[i+2] == myX && walls[i+3] == myY){
 					if(walls[i] == myX-1){ //mur à gauche
 						forbiddenMoves[3] = 1;
+						printf("here mur5\n");
 					}
 					if(walls[i] == myX+1){ //mur à droite
 						forbiddenMoves[1] = 1;
+						printf("here mur6\n");
 					}
 					if(walls[i+1] == myY-1){ //mur en haut
 						forbiddenMoves[0] = 1;
+						printf("here mur7\n");
 					}
 					if(walls[i+1] == myY+1){ //mur en bas
 						forbiddenMoves[2] = 1;
+						printf("here mur8\n");
 					}
 				}
 			}
-			//faire gaffe aux cul-de-sac:
-
+			//choix de myMove (à modifier pcq privilégie le nord)
+			for (int i = 0; i < 4; i++)
+			{
+				printf("forbiddenMoves[%d] = %d\n", i, forbiddenMoves[i]);
+				if (!forbiddenMoves[i]){
+					myMove = i;
+					break;
+				}
+				forbiddenMoves[i] = 0;
+			}
+			printf("Final move = %d\n", myMove);
 
 			//mise à jour des variables utilisées
 			if (nbTours%10 == 0){
@@ -160,12 +217,13 @@ int main(){
 			returnCode = sendMove(myMove);
 		}
 		hePlays = !hePlays;
+		
 	}
 
 
 
 	//affichage final
-	if (returnCode == -1){
+	if (returnCode == 1){
 		printf(R"EOF(
 
 
@@ -182,7 +240,7 @@ int main(){
 		)EOF");
 		printf("\n");
 	}
-	if (returnCode == 1){
+	if (returnCode == -1){
 		printf(R"EOF(
 
 
