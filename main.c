@@ -11,6 +11,7 @@ int main(){
 	t_return_code returnCode = NORMAL_MOVE;
 	t_move myMove = -1;
 	t_move hisMove;
+	int* myMoves, hisMoves;
 	int nbTours = 0;
 	int longueur = 0;
 	int forbiddenMoves[4] = {0,0,0,0}; //{N,S,E,W} 1 si interdit
@@ -19,16 +20,23 @@ int main(){
 	//en externe:
 	//connectToServer("polydev.cia-polytech-sorbonne.fr", 8080, "asadouki");
 	//en interne:
-	connectToServer("localhost", 1234, "asadouki");
+	//connectToServer("localhost", 1234, "asadouki");
 	
 	//récupération des infos
 	waitForSnakeGame("RANDOM_PLAYER difficulty=2 timeout=1000 start=0 seed=1", gameName, &X, &Y, &nbWalls);
 	int* walls = (int*)malloc(4*nbWalls*sizeof(int));
 	hePlays = getSnakeArena(walls);
+
 	int myX = hePlays ? X-3 : 2;
 	int myY = Y/2;
 	int hisX = hePlays ? 2 : X-3;
 	int hisY = Y/2;
+
+	int** arena = (int**)malloc(X*sizeof(int));
+	for (int i = 0; i < X; i++)
+	{
+		arena[i] = (int*)malloc(Y*sizeof(int));
+	} //-1 non visitée, 0 ya qqun dessus (toi ou lui), val>0 à val cases de ta vieille tete
 
 	//affichage infos arène
 	printf("X:%d\tY:%d\n", X, Y);
@@ -44,7 +52,6 @@ int main(){
 	// WINNING_MOVE = 1 (he wins)
 	// LOOSING_MOVE = -1 (I win)
 	
-
 	while(returnCode == NORMAL_MOVE){
 		printArena();
 		if(hePlays){
@@ -76,43 +83,25 @@ int main(){
 			// }
 
 
-			//idée 2: va tout droit tant qu'il peut. Sinon myMove++
-			// To do :
+			//idée 2: va tout droit tant qu'il peut
+			// To do : merge the switches my move my man
 			// Faire gaffe aux murs, aux bords, à pas revenir sur ses pas, à sa queue, à l'autre, aux cul-de-sac
-			// Attention aux boucles infinies !
+			// Expansion
+			// Si le temps (lol) désavantager l'adversaire : algos min-max/alpha-beta
 
-			//faire gaffe aux bords:
-			if (myX == 0){
-				forbiddenMoves[3] = 1;
-				printf("here bords 1\n");
+			myMoves = (int*)malloc(longueur*sizeof(int));
+			for (int i = 0; i < longueur-1; i++){ //pour pas dépasser
+				myMoves[i+1] = myMoves[i];
 			}
-			if (myX == X-1){
-				forbiddenMoves[1] = 1;
-				printf("here bords 2\n");
+			myMoves[0] = myMove; //append my dernier move
+
+			//avoir conscience de soi:
+			arena[myX][myY] = 0;
+			for (int i = 0; i < longueur; i++)
+			{
+				
 			}
-			if (myY == 0){
-				forbiddenMoves[0] = 1;
-				printf("here bords 3\n");
-			}
-			if (myY == Y-1){
-				forbiddenMoves[2] = 1;
-				printf("here bords 4\n");
-			}
-			//faire gaffe aux cul-de-sac:
-			// switch(myMove){
-			// 	case 0:
-			// 		while(projX++ )
-			// 		break;
-			// 	case 1:
-			// 		forbiddenMoves[3]= 1;
-			// 		break;
-			// 	case 2:
-			// 		forbiddenMoves[0]= 1;
-			// 		break;
-			// 	case 3:
-			// 		forbiddenMoves[1]= 1;
-			// 		break; 
-			// }
+			//HERE rajouter la longueur
 
 			//ne pas revenir sur ses pas:
 			switch(myMove){
@@ -135,7 +124,83 @@ int main(){
 				default:
 					break;
 			}
-			//faire gaffe à sa queue:
+			//faire gaffe aux bords:
+			if (myX == 0){
+				forbiddenMoves[3] = 1;
+				printf("here bords 1\n");
+			}
+			if (myX == X-1){
+				forbiddenMoves[1] = 1;
+				printf("here bords 2\n");
+			}
+			if (myY == 0){
+				forbiddenMoves[0] = 1;
+				printf("here bords 3\n");
+			}
+			if (myY == Y-1){
+				forbiddenMoves[2] = 1;
+				printf("here bords 4\n");
+			}
+			//faire gaffe aux cul-de-sac:
+			for (int i = 0; i < X; i++)
+			{
+				for (int j = 0; j < Y; j++)
+				{
+					for (int k = 0; k < 4*nbWalls; k++)
+					{
+						if (walls[i] == i && walls[i+1] == j){
+							if(walls[i+2] == i-1){ //mur à gauche
+								forbiddenMoves[3] = 1;
+								printf("here mur 1\n");
+							}
+							if(walls[i+2] == i+1){ //mur à droite
+								forbiddenMoves[1] = 1;
+								printf("here mur 2\n");
+							}
+							if(walls[i+3] == j-1){ //mur en haut
+								forbiddenMoves[0] = 1;
+								printf("here mur 3\n");
+							}
+							if(walls[i+3] == j+1){ //mur en bas
+								forbiddenMoves[2] = 1;
+								printf("here mur 4\n");
+							}
+						}
+						if (walls[i+2] == i && walls[i+3] == j){
+							if(walls[i] == i-1){ //mur à gauche
+								forbiddenMoves[3] = 1;
+								printf("here mur 5\n");
+							}
+							if(walls[i] == i+1){ //mur à droite
+								forbiddenMoves[1] = 1;
+								printf("here mur 6\n");
+							}
+							if(walls[i+1] == j-1){ //mur en haut
+								forbiddenMoves[0] = 1;
+								printf("here mur 7\n");
+							}
+							if(walls[i+1] == j+1){ //mur en bas
+								forbiddenMoves[2] = 1;
+								printf("here mur 8\n");
+							}
+						}
+					}
+				}
+			}
+			// switch(myMove){
+			// 	case 0:
+			// 		while(projX++ )
+			// 		break;
+			// 	case 1:
+			// 		forbiddenMoves[3]= 1;
+			// 		break;
+			// 	case 2:
+			// 		forbiddenMoves[0]= 1;
+			// 		break;
+			// 	case 3:
+			// 		forbiddenMoves[1]= 1;
+			// 		break; 
+			// }
 
 			//faire gaffe à l'autre:
 
@@ -152,43 +217,42 @@ int main(){
 					}
 					if(walls[i+2] == myX+1){ //mur à droite
 						forbiddenMoves[1] = 1;
-						printf("here mur2\n");
+						printf("here mur 2\n");
 					}
 					if(walls[i+3] == myY-1){ //mur en haut
 						forbiddenMoves[0] = 1;
-						printf("here mur3\n");
+						printf("here mur 3\n");
 					}
 					if(walls[i+3] == myY+1){ //mur en bas
 						forbiddenMoves[2] = 1;
-						printf("here mur4\n");
+						printf("here mur 4\n");
 					}
 				}
 				if (walls[i+2] == myX && walls[i+3] == myY){
 					if(walls[i] == myX-1){ //mur à gauche
 						forbiddenMoves[3] = 1;
-						printf("here mur5\n");
+						printf("here mur 5\n");
 					}
 					if(walls[i] == myX+1){ //mur à droite
 						forbiddenMoves[1] = 1;
-						printf("here mur6\n");
+						printf("here mur 6\n");
 					}
 					if(walls[i+1] == myY-1){ //mur en haut
 						forbiddenMoves[0] = 1;
-						printf("here mur7\n");
+						printf("here mur 7\n");
 					}
 					if(walls[i+1] == myY+1){ //mur en bas
 						forbiddenMoves[2] = 1;
-						printf("here mur8\n");
+						printf("here mur 8\n");
 					}
 				}
 			}
 			//choix de myMove (à modifier pcq privilégie le nord)
-			for (int i = 0; i < 4; i++)
+			for (int i = 3; i >= 0; i--)
 			{
 				printf("forbiddenMoves[%d] = %d\n", i, forbiddenMoves[i]);
 				if (!forbiddenMoves[i]){
 					myMove = i;
-					break;
 				}
 				forbiddenMoves[i] = 0;
 			}
@@ -212,8 +276,11 @@ int main(){
 					myX -= 1;
 					break;
 			}
+			if (nbTours%longueur == 0) //ne libère pas le tableau tout le temps pour garder un tableau de taille "longueur"
+			{
+				free(myMoves);
+			}
 			nbTours++;
-
 			returnCode = sendMove(myMove);
 		}
 		hePlays = !hePlays;
