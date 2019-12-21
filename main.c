@@ -3,6 +3,7 @@
 #include "ret_type.h"
 #include "clientAPI.h"
 #include "snakeAPI.h"
+#include "arena.h"
 
 int main(){
 
@@ -14,6 +15,7 @@ int main(){
 	int nbTours = 0;
 	int longueur = 1;
 	int forbiddenMoves[4] = {0,0,0,0}; //{N,E,S,W} 1 si interdit
+	int distanceMax = 5;
 
 	//connexion au serveur
 	//en externe:
@@ -22,7 +24,7 @@ int main(){
 	//connectToServer("localhost", 1234, "asadouki");
 	
 	//récupération des infos
-	waitForSnakeGame("RANDOM_PLAYER difficulty=2 timeout=1000 start=0 seed=2", gameName, &X, &Y, &nbWalls);
+	waitForSnakeGame("RANDOM_PLAYER difficulty=2 timeout=1000 start=0 seed=1", gameName, &X, &Y, &nbWalls);
 	int* walls = (int*)malloc(4*nbWalls*sizeof(int));
 	hePlays = getSnakeArena(walls);
 
@@ -32,24 +34,34 @@ int main(){
 	int hisX = hePlays ? 2 : X-3;
 	int hisY = Y/2;
 
-	int mySnake[X*Y]; //tab coord snake, au max occupe la moitié de l'arène (/2 *2 pcq coord)
-	int hisSnake[X*Y];
-	int myMoves[X*Y/2];
-	int hisMoves[X*Y/2];
-
-	for (int i = 0; i < X*Y/2; i++){
-		myMoves[i] = -1;
-		hisMoves[i] = -1;
+	//init snakes
+	int* mySnake = (int*)malloc(X*Y*sizeof(int)); //tab coord snake, au max occupe la moitié de l'arène (/2 *2 pcq coord)
+	int* hisSnake = (int*)malloc(X*Y*sizeof(int));
+	for (int i = 0; i < X*Y; i++){
+		mySnake[i] = -1;
+		hisSnake[i] = -1;
 	}
+	updateSnake(mySnake,longueur,myX,myY);
+	updateSnake(hisSnake,longueur,myX,myY);
 
-	//modélisation arène (matrice X*Y)
+	//modélisation arène (matrice X*Y*5) arena[i][j] = {dist,N,E,S,W}
+	//dist = distance de toi (0 si dessus), le reste pareil que pour forbiddenMoves
 	//-1 non visitée, 0 ya qqun dessus (toi ou lui), val>0 à val cases de ta vieille tete
-	int** arena = (int**)malloc(X*sizeof(int));
-	for (int i = 0; i < X; i++)
-	{
-		arena[i] = (int*)malloc(Y*sizeof(int));
+	int*** baseArena = initArena(X,Y,nbWalls,walls);
+	int*** updatedArena = (int***)malloc(X*sizeof(int**));
+	for (int i = 0; i < X; i++){
+		updatedArena[i] = (int**)malloc(Y*sizeof(int*));
+		for (int j = 0; j < Y; j++){
+			updatedArena[i][j] = (int*)malloc(5*sizeof(int));
+		}
 	}
-
+	for (int i = 0; i < X; i++){
+		for (int j = 0; j < Y; j++){
+			for (int k = 0; k < 5; k++){
+				updatedArena[i][j][k] = baseArena[i][j][k];
+			}
+		}
+	}
 	//affichage infos arène
 	printf("X:%d\tY:%d\n", X, Y);
 
@@ -57,15 +69,8 @@ int main(){
 		printArena();
 		if(hePlays){
 			returnCode = getMove(&hisMove);
-			for (int i = longueur-1; i > 0 ; i--){
-				hisMoves[i] = hisMoves[i-1];
-				hisSnake[2*i+1] = hisSnake[2*i-1];
-				hisSnake[2*i] = hisSnake[2*i-2];
-			}
-			hisSnake[0] = hisX; //append head position
-			hisSnake[1] = hisY;
-			hisMoves[0] = hisMove; //append my dernier move
 			//maj de sa position
+			updateSnake(hisSnake,longueur,hisX,hisY);
 			switch(hisMove){
 				case 0:
 					hisY -= 1;
@@ -98,185 +103,30 @@ int main(){
 			// LOOSING_MOVE = -1 (I win)
 
 			//ne pas revenir sur ses pas:
-			switch(myMove){
-				case 0:
-					forbiddenMoves[2] = 1;
-					printf("here pas 1\n");
-					break;
-				case 1:
-					forbiddenMoves[3]= 1;
-					printf("here pas 2\n");
-					break;
-				case 2:
-					forbiddenMoves[0]= 1;
-					printf("here pas 3\n");
-					break;
-				case 3:
-					forbiddenMoves[1]= 1;
-					printf("here pas 4\n");
-					break;
-				default:
-					break;
-			}
+			dontGoBack(forbiddenMoves,myMove);
 
 			//faire gaffe à lui et à moi:
-			for (int i = 0; i < 2*longueur; i += 2){
-				if ((myX-1 == mySnake[i] && myY == mySnake[i+1]) || (myX-1 == hisSnake[i] && myY == hisSnake[i+1])){
-					forbiddenMoves[3] = 1;
-					printf("here toi 1\n");
-				}
-				if ((myX+1 == mySnake[i] && myY == mySnake[i+1]) || (myX+1 == hisSnake[i] && myY == hisSnake[i+1])){
-					forbiddenMoves[1] = 1;
-					printf("mySnake[%d] = %d\n", i, mySnake[i]);
-					printf("here toi 2\n");
-				}
-				if ((myY-1 == mySnake[i+1] && myX == mySnake[i]) || (myY-1 == hisSnake[i+1] && myX == hisSnake[i])){
-					forbiddenMoves[0] = 1;
-					printf("here toi 3\n");
-				}
-				if ((myY+1 == mySnake[i+1] && myX == mySnake[i]) || (myY+1 == hisSnake[i+1] && myX == hisSnake[i])){
-					forbiddenMoves[2] = 1;
-					printf("here toi 4\n");
-				}
-			}
+			dontTouchSnakes(forbiddenMoves,myX,myY,longueur,mySnake,hisSnake);
 
 			//faire gaffe aux bords:
-			if (myX == 0){
-				forbiddenMoves[3] = 1;
-				printf("here bords 1\n");
-			}
-			if (myX == X-1){
-				forbiddenMoves[1] = 1;
-				printf("here bords 2\n");
-			}
-			if (myY == 0){
-				forbiddenMoves[0] = 1;
-				printf("here bords 3\n");
-			}
-			if (myY == Y-1){
-				forbiddenMoves[2] = 1;
-				printf("here bords 4\n");
-			}
+			dontTouchBorders(forbiddenMoves,myX,myY,X,Y);
 
 			//faire gaffe aux murs:
-			for (int i = 0; i < 4*nbWalls; i+=4){
-				// walls[i]   = x1
-				// walls[i+1] = y1
-				// walls[i+2] = x2
-				// walls[i+3] = y2
-				if (walls[i] == myX && walls[i+1] == myY){
-					if(walls[i+2] == myX-1){ //mur à gauche
-						forbiddenMoves[3] = 1;
-						printf("here mur 1\n");
-					}
-					if(walls[i+2] == myX+1){ //mur à droite
-						forbiddenMoves[1] = 1;
-						printf("here mur 2\n");
-					}
-					if(walls[i+3] == myY-1){ //mur en haut
-						forbiddenMoves[0] = 1;
-						printf("here mur 3\n");
-					}
-					if(walls[i+3] == myY+1){ //mur en bas
-						forbiddenMoves[2] = 1;
-						printf("here mur 4\n");
-					}
-				}
-				if (walls[i+2] == myX && walls[i+3] == myY){
-					if(walls[i] == myX-1){ //mur à gauche
-						forbiddenMoves[3] = 1;
-						printf("here mur 5\n");
-					}
-					if(walls[i] == myX+1){ //mur à droite
-						forbiddenMoves[1] = 1;
-						printf("here mur 6\n");
-					}
-					if(walls[i+1] == myY-1){ //mur en haut
-						forbiddenMoves[0] = 1;
-						printf("here mur 7\n");
-					}
-					if(walls[i+1] == myY+1){ //mur en bas
-						forbiddenMoves[2] = 1;
-						printf("here mur 8\n");
-					}
-				}
-			}
+			dontTouchWalls(forbiddenMoves,myX,myY,nbWalls,walls);
 
-			//faire gaffe aux cul-de-sac:
-			// for (int i = 0; i < X; i++)
-			// {
-			// 	for (int j = 0; j < Y; j++)
-			// 	{
-			// 		for (int k = 0; k < 4*nbWalls; k++)
-			// 		{
-			// 			if (walls[i] == i && walls[i+1] == j){
-			// 				if(walls[i+2] == i-1){ //mur à gauche
-			// 					forbiddenMoves[3] = 1;
-			// 					printf("here mur 1\n");
-			// 				}
-			// 				if(walls[i+2] == i+1){ //mur à droite
-			// 					forbiddenMoves[1] = 1;
-			// 					printf("here mur 2\n");
-			// 				}
-			// 				if(walls[i+3] == j-1){ //mur en haut
-			// 					forbiddenMoves[0] = 1;
-			// 					printf("here mur 3\n");
-			// 				}
-			// 				if(walls[i+3] == j+1){ //mur en bas
-			// 					forbiddenMoves[2] = 1;
-			// 					printf("here mur 4\n");
-			// 				}
-			// 			}
-			// 			if (walls[i+2] == i && walls[i+3] == j){
-			// 				if(walls[i] == i-1){ //mur à gauche
-			// 					forbiddenMoves[3] = 1;
-			// 					printf("here mur 5\n");
-			// 				}
-			// 				if(walls[i] == i+1){ //mur à droite
-			// 					forbiddenMoves[1] = 1;
-			// 					printf("here mur 6\n");
-			// 				}
-			// 				if(walls[i+1] == j-1){ //mur en haut
-			// 					forbiddenMoves[0] = 1;
-			// 					printf("here mur 7\n");
-			// 				}
-			// 				if(walls[i+1] == j+1){ //mur en bas
-			// 					forbiddenMoves[2] = 1;
-			// 					printf("here mur 8\n");
-			// 				}
-			// 			}
-			// 		}
-			// 	}
-			// }
 
-			//choix de myMove (à modifier pcq privilégie le nord)
-			for (int i = 3; i >= 0; i--)
-			{
-				printf("forbiddenMoves[%d] = %d\n", i, forbiddenMoves[i]);
-				if (!forbiddenMoves[i]){
-					myMove = i;
-				}
-				forbiddenMoves[i] = 0;
-			}
-			printf("Final move = %d\n", myMove);
-			
-			//position dans le code: après choix myMove avant màj myX/myY
-			//parkour depuis la fin jusqu'à la 2e valeur (ou 2e couple de valeurs)
-			for (int i = 2*longueur-2; i > 1 ; i -= 2){
-				myMoves[i/2] = myMoves[i/2-1];
-				mySnake[i] = mySnake[i-2]; //ex(1er tour):si long 4, mySnake[7] = mySnake[5]
-				mySnake[i+1] = mySnake[i-1]; //ex(1er tour):si long 4, mySnake[6] = mySnake[4]
-				printf("mySnake[%d] = %d\n", i, mySnake[i]);
-				printf("mySnake[%d] = %d\n", i+1, mySnake[i+1]);
-				printf("longueur = %d\n", longueur);
-			}
-			mySnake[0] = myX; //append head position
-			mySnake[1] = myY;
-			printf("mySnake[0] = %d\n", mySnake[0]);
-			printf("mySnake[1] = %d\n", mySnake[1]);
-			myMoves[0] = myMove; //append my dernier move
+			updateArena(updatedArena,baseArena,X,Y,myX,myY,mySnake,hisSnake,longueur,forbiddenMoves,distanceMax);
+			printf("updatedArena[myX=%d][myY=%d][0] = %d\n", myX, myY, updatedArena[myX][myY][0]);
+
+			myMove = chooseMyMove(updatedArena,X,Y,myX,myY,distanceMax);
+			//printf("updatedArena[myX+1][myY][0] = %d\n", updatedArena[myX+1][myY][0]);
 
 			//mise à jour des variables utilisées
+			
+			//position dans le code: après choix myMove avant màj myX/myY (oui oui avant)
+			//parkour depuis la fin jusqu'à la 2e valeur (ou 2e couple de valeurs)
+			updateSnake(mySnake,longueur,myX,myY);
+
 			switch(myMove){
 				case 0:
 					myY -= 1;
@@ -292,17 +142,22 @@ int main(){
 					break;
 			}
 
-			arena[myX][myY] = 0;
-			for (int i = 0; i < 2*longueur; i += 2){
-				arena[mySnake[i]][mySnake[i+1]] = 0;
-			}
-
 			nbTours++;
 			if (nbTours%10 == 0){
 				longueur++;
 			}
 
 			returnCode = sendMove(myMove);
+			//choix de myMove (à modifier pcq privilégie le nord)
+			// for (int i = 3; i >= 0; i--)
+			// {
+			// 	printf("forbiddenMoves[%d] = %d\n", i, forbiddenMoves[i]);
+			// 	if (!forbiddenMoves[i]){
+			// 		myMove = i;
+			// 	}
+			// 	forbiddenMoves[i] = 0;
+			// }
+			// printf("Final move = %d\n", myMove);
 		}
 		hePlays = !hePlays;
 		
@@ -311,7 +166,7 @@ int main(){
 
 
 	//affichage final
-	if (returnCode == 1){
+	if (returnCode == -1){
 		printf(R"EOF(
 
 
@@ -328,7 +183,7 @@ int main(){
 		)EOF");
 		printf("\n");
 	}
-	if (returnCode == -1){
+	if (returnCode == 1){
 		printf(R"EOF(
 
 
@@ -348,4 +203,20 @@ int main(){
 
 	closeConnection();
 	free(walls);
+	free(mySnake);
+	free(hisSnake);
+	for (int i = 0; i < X; i++){
+		for (int j = 0; j < Y; j++){
+			free(baseArena[i][j]);
+		}
+		free(baseArena[i]);
+	}
+	free(baseArena);
+	for (int i = 0; i < X; i++){
+		for (int j = 0; j < Y; j++){
+			free(updatedArena[i][j]);
+		}
+		free(updatedArena[i]);
+	}
+	free(updatedArena);
 }
