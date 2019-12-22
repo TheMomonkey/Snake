@@ -13,6 +13,6 @@ test: $(SRC) test.c
 	gcc -g $^ -o $@
 
 clean:
-	rm -f *.o main
+	rm -f *.o main test
 	
 .PHONY: all clean

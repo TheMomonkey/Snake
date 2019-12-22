@@ -8,7 +8,6 @@ void dontTouchBorders(int forbiddenMoves[4], int myX, int myY, int X, int Y);
 void dontTouchWalls(int forbiddenMoves[4], int myX, int myY, int nbWalls, int* walls);
 
 //update arena info
-
 //màj tab coord d'un snake
 void updateSnake(int* snake, int longueur, int curPosx, int curPosy);
 //crée arène + met les forbidden de base (murs+bords)
