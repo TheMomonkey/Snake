@@ -15,7 +15,7 @@ int main(){
 	int nbTours = 0;
 	int longueur = 1;
 	int forbiddenMoves[4] = {0,0,0,0}; //{N,E,S,W} 1 si interdit
-	int distanceMax = 10;
+	int distanceMax = 15;
 
 	//connexion au serveur
 	//en externe:
@@ -24,7 +24,7 @@ int main(){
 	//connectToServer("localhost", 1234, "asadouki");
 	
 	//récupération des infos
-	waitForSnakeGame("SUPER_PLAYER difficulty=2 timeout=1000 start=0 seed=1", gameName, &X, &Y, &nbWalls);
+	waitForSnakeGame("SUPER_PLAYER difficulty=2 timeout=1000 start=0 seed=2", gameName, &X, &Y, &nbWalls);
 	int* walls = (int*)malloc(4*nbWalls*sizeof(int));
 	hePlays = getSnakeArena(walls);
 
@@ -69,6 +69,7 @@ int main(){
 		printArena();
 		if(hePlays){
 			returnCode = getMove(&hisMove);
+			//printf("hisMove = %d\n", hisMove);
 			//maj de sa position
 			updateSnake(hisSnake,longueur,hisX,hisY);
 			switch(hisMove){
@@ -159,8 +160,8 @@ int main(){
 			// 	}
 			// 	forbiddenMoves[i] = 0;
 			// }
-			printf("Final move = %d\n", myMove);
 			//printf("Final myX = %d, myY = %d\n", myX, myY);
+			//printf("Final myMove = %d\n", myMove);
 		}
 		hePlays = !hePlays;
 		

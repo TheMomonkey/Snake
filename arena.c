@@ -363,19 +363,19 @@ t_move chooseMyMove(int*** updatedArena, int X, int Y, int myX, int myY, int dis
 		distance--;
 	}
 
-	if (updatedArena[myX][myY-1][0] == -2 && updatedArena[myX][myY][1] == 0){
+	if (updatedArena[myX][myY][1] == 0 && updatedArena[myX][myY-1][0] == -2){
 		myMove = 0;
 		return myMove;
 	}
-	if (updatedArena[myX+1][myY][0] == -2 && updatedArena[myX][myY][2] == 0){
+	if (updatedArena[myX][myY][2] == 0 && updatedArena[myX+1][myY][0] == -2){
 		myMove = 1;
 		return myMove;
 	}
-	if (updatedArena[myX][myY+1][0] == -2 && updatedArena[myX][myY][3] == 0){
+	if (updatedArena[myX][myY][3] == 0 && updatedArena[myX][myY+1][0] == -2){
 		myMove = 2;
 		return myMove;
 	}
-	if (updatedArena[myX-1][myY][0] == -2 && updatedArena[myX][myY][4] == 0){
+	if (updatedArena[myX][myY][4] == 0 && updatedArena[myX-1][myY][0] == -2){
 		myMove = 3;
 		return myMove;
 	}
