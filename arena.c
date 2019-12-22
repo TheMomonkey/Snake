@@ -19,7 +19,7 @@ void dontGoBack(int forbiddenMoves[4], int myMove){
 			break;
 		case 3:
 			forbiddenMoves[1]= 1;
-			printf("here dontGoBack east\n");
+			//printf("here dontGoBack east\n");
 			break;
 		default:
 			break;
@@ -29,19 +29,20 @@ void dontGoBack(int forbiddenMoves[4], int myMove){
 void dontTouchSnakes(int forbiddenMoves[4], int myX, int myY, int longueur, int* mySnake, int* hisSnake){
 	for (int i = 0; i < 2*longueur; i += 2){
 		if ((myX-1 == mySnake[i] && myY == mySnake[i+1]) || (myX-1 == hisSnake[i] && myY == hisSnake[i+1])){
-			forbiddenMoves[3] = 1;
+			forbiddenMoves[3] = 1; //west
 			//printf("here toi 1\n");
 		}
 		if ((myX+1 == mySnake[i] && myY == mySnake[i+1]) || (myX+1 == hisSnake[i] && myY == hisSnake[i+1])){
-			forbiddenMoves[1] = 1;
-			printf("here toi 2\n");
+			forbiddenMoves[1] = 1; //east
+			//printf("HERE toi 2\n");
+			//printf("snakeX[%d] = %d, snakeY[%d] = %d\n", i/2, mySnake[i], i/2, mySnake[i+1]);
 		}
 		if ((myY-1 == mySnake[i+1] && myX == mySnake[i]) || (myY-1 == hisSnake[i+1] && myX == hisSnake[i])){
-			forbiddenMoves[0] = 1;
+			forbiddenMoves[0] = 1; //north
 			//printf("here toi 3\n");
 		}
 		if ((myY+1 == mySnake[i+1] && myX == mySnake[i]) || (myY+1 == hisSnake[i+1] && myX == hisSnake[i])){
-			forbiddenMoves[2] = 1;
+			forbiddenMoves[2] = 1; //south
 			//printf("here toi 4\n");
 		}
 	}
@@ -54,7 +55,7 @@ void dontTouchBorders(int forbiddenMoves[4], int myX, int myY, int X, int Y){
 	}
 	if (myX == X-1){
 		forbiddenMoves[1] = 1;
-		printf("here bords east\n");
+		//printf("here bords east\n");
 	}
 	if (myY == 0){
 		forbiddenMoves[0] = 1;
@@ -79,7 +80,7 @@ void dontTouchWalls(int forbiddenMoves[4], int myX, int myY, int nbWalls, int* w
 			}
 			if(walls[i+2] == myX+1){ //mur à droite
 				forbiddenMoves[1] = 1;
-				printf("here mur east 1\n");
+				//printf("here mur east 1\n");
 			}
 			if(walls[i+3] == myY-1){ //mur en haut
 				forbiddenMoves[0] = 1;
@@ -97,7 +98,7 @@ void dontTouchWalls(int forbiddenMoves[4], int myX, int myY, int nbWalls, int* w
 			}
 			if(walls[i] == myX+1){ //mur à droite
 				forbiddenMoves[1] = 1;
-				printf("here mur east 2\n");
+				//printf("here mur east 2\n");
 			}
 			if(walls[i+1] == myY-1){ //mur en haut
 				forbiddenMoves[0] = 1;
@@ -179,12 +180,12 @@ void updateArena(int*** updatedArena, int*** baseArena, int X, int Y, int myX, i
 	}
 
 	//prise en compte nouvelle position
-	printf("forbiddenMoves[1] = %d\n",forbiddenMoves[1]);
+	//printf("forbiddenMoves[1] = %d\n",forbiddenMoves[1]);
 	updatedArena[myX][myY][0] = 0;
 	updatedArena[myX][myY][1] = forbiddenMoves[0];
-	printf("forbidden east avant 1,5 = %d\n", updatedArena[1][5][2]);
+	// printf("forbidden east avant 0,1 = %d\n", updatedArena[0][1][2]);
 	updatedArena[myX][myY][2] = forbiddenMoves[1];
-	printf("forbidden east après 1,5 = %d\n", updatedArena[1][5][2]);
+	// printf("forbidden east après 0,1 = %d\n", updatedArena[0][1][2]);
 	updatedArena[myX][myY][3] = forbiddenMoves[2];
 	updatedArena[myX][myY][4] = forbiddenMoves[3];
 
@@ -211,6 +212,7 @@ void updateArena(int*** updatedArena, int*** baseArena, int X, int Y, int myX, i
 									if (i != X-1){
 										if (updatedArena[i+1][j][0] == distance-1){
 											updatedArena[i][j][2] = 1; //pas à l'est
+											//printf("HERE\n");
 										}
 									}
 									break;
@@ -231,11 +233,12 @@ void updateArena(int*** updatedArena, int*** baseArena, int X, int Y, int myX, i
 							}
 						}
 
-						dontTouchSnakes(updatedArena[i][j]+1,mySnake[0],mySnake[1],longueur,mySnake,hisSnake);
+						dontTouchSnakes(updatedArena[i][j]+1,i,j,longueur,mySnake,hisSnake);
 						//printf("INTERDIT HAUT X,Y = %d\n", updatedArena[mySnake[0]][mySnake[1]][1]);
 						
 
 						//marquage des cases
+						//printf("east updatedArena[%d][%d][%d] = %d\n",i,j,direction+1,updatedArena[i][j][direction+1]);
 						if (updatedArena[i][j][direction+1] == 0){ //la voie est libre
 							switch(direction){
 								case 0: //north
@@ -264,13 +267,13 @@ void updateArena(int*** updatedArena, int*** baseArena, int X, int Y, int myX, i
 						// 	projMySnake[m] = mySnake[m];
 						// }
 					}
-					printf("after %d,%d je suis à la distance %d\n",i,j, updatedArena[i][j][0]);
+					//printf("after %d,%d je suis à la distance %d\n",i,j, updatedArena[i][j][0]);
 				}
 			}
 		}	
 	}
 
-	//pour effacer les interdictions de revenir en arrière sur toutes les cases
+	//pour effacer les interdictions de revenir en arrière sur toutes les cases (pour chooseMyMove)
 	for (int i = 0; i < X; i++){
 		for (int j = 0; j < Y; j++){
 			for (int k = 1; k < 5; k++){
@@ -278,10 +281,11 @@ void updateArena(int*** updatedArena, int*** baseArena, int X, int Y, int myX, i
 			}
 		}
 	}
-	updatedArena[myX][myY][1] = forbiddenMoves[0];
-	updatedArena[myX][myY][2] = forbiddenMoves[1];
-	updatedArena[myX][myY][3] = forbiddenMoves[2];
-	updatedArena[myX][myY][4] = forbiddenMoves[3];
+
+	for (int i = 0; i < 4; i++){
+		updatedArena[myX][myY][i+1] = forbiddenMoves[i];
+		forbiddenMoves[i] = 0;
+	}
 	// free(projMySnake);
 }
 
@@ -293,15 +297,19 @@ t_move chooseMyMove(int*** updatedArena, int X, int Y, int myX, int myY, int dis
 
 	//phase de remontée
 	//on cherche une case marquée de la distance max
-	for (int i = 0; i < X; i++){
-		for (int j = 0; j < Y; j++){
-			if (updatedArena[i][j][0] == distance){
-				x = i;
-				y = j;
-				printf("choose : x = %d, y = %d\n", x, y);
-				goto END_OF_LOOP; //pour sortir de la boucle dès la 1re case trouvée
+	while(distance > 0){ //si jamais on ne peut pas aller jusqu'à la distance max
+
+		for (int i = 0; i < X; i++){
+			for (int j = 0; j < Y; j++){
+				if (updatedArena[i][j][0] == distance){
+					x = i;
+					y = j;
+					//printf("choose : x = %d, y = %d\n", x, y);
+					goto END_OF_LOOP; //pour sortir de la boucle dès la 1re case trouvée
+				}
 			}
 		}
+		distance--;
 	}
 
 	END_OF_LOOP :
@@ -309,43 +317,43 @@ t_move chooseMyMove(int*** updatedArena, int X, int Y, int myX, int myY, int dis
 	//on remonte jusqu'à la position courante
 	while (distance > 0){
 
-		//printf("choose : %d,%d je suis à la distance %d\n",i,j, updatedArena[i][j][0]);
+		//printf("choose : %d,%d je suis à la distance %d\n", x, y, updatedArena[x][y][0]);
+		//printf("x = %d, y = %d\n", x, y);
 
 		for (int direction = 0; direction < 4; direction++){
 			//printf("updatedArena[x][y][%d+1] = %d\n", direction, updatedArena[x][y][direction+1]);
 			if (updatedArena[x][y][direction+1] == 0){ //si la voie est libre
 				//printf("direction de distance %d = %d\n", distance, direction);
-				printf("x = %d, y = %d\n", x, y);
 				switch(direction){
 					case 0: //north
 						if (y != 0){
 							if (updatedArena[x][y-1][0] == distance-1){
-								updatedArena[x][--y][0] = -1;
-								printf("choose north : x = %d, y = %d\n", x, y);
+								updatedArena[x][--y][0] = -2;
+								//printf("choose north : x = %d, y = %d\n", x, y);
 							}
 						}
 						break;
 					case 1: //east
 						if (x != X-1){
 							if (updatedArena[x+1][y][0] == distance-1){
-								updatedArena[++x][y][0] = -1;
-								printf("choose east : x = %d, y = %d\n", x, y);
+								updatedArena[++x][y][0] = -2;
+								//printf("choose east : x = %d, y = %d\n", x, y);
 							}
 						}
 						break;
 					case 2: //south
 						if (y != Y-1){
 							if (updatedArena[x][y+1][0] == distance-1){
-								updatedArena[x][++y][0] = -1;
-								printf("choose south : x = %d, y = %d\n", x, y);
+								updatedArena[x][++y][0] = -2;
+								//printf("choose south : x = %d, y = %d\n", x, y);
 							}
 						}
 						break;
 					case 3:	//west
 						if (x != 0){
 							if (updatedArena[x-1][y][0] == distance-1){
-								updatedArena[--x][y][0] = -1;
-								printf("choose west : x = %d, y = %d\n", x, y);
+								updatedArena[--x][y][0] = -2;
+								//printf("choose west : x = %d, y = %d\n", x, y);
 							}
 						}
 						break;
@@ -355,19 +363,19 @@ t_move chooseMyMove(int*** updatedArena, int X, int Y, int myX, int myY, int dis
 		distance--;
 	}
 
-	if (myY != 0 && updatedArena[myX][myY-1][0] == -1){
+	if (updatedArena[myX][myY-1][0] == -2 && updatedArena[myX][myY][1] == 0){
 		myMove = 0;
 		return myMove;
 	}
-	if (myX != X-1 && updatedArena[myX+1][myY][0] == -1){
+	if (updatedArena[myX+1][myY][0] == -2 && updatedArena[myX][myY][2] == 0){
 		myMove = 1;
 		return myMove;
 	}
-	if (myY != Y-1 && updatedArena[myX][myY+1][0] == -1){
+	if (updatedArena[myX][myY+1][0] == -2 && updatedArena[myX][myY][3] == 0){
 		myMove = 2;
 		return myMove;
 	}
-	if (myX != 0 && updatedArena[myX-1][myY][0] == -1){
+	if (updatedArena[myX-1][myY][0] == -2 && updatedArena[myX][myY][4] == 0){
 		myMove = 3;
 		return myMove;
 	}
@@ -377,8 +385,8 @@ t_move chooseMyMove(int*** updatedArena, int X, int Y, int myX, int myY, int dis
 
 void printArenaInfo(int*** arena, int X, int Y){
 
-	for (int i = 0; i < 7; i++){
-		for (int j = 0; j < 9; j++){
+	for (int i = 0; i < 8; i++){
+		for (int j = 0; j < Y; j++){
 			printf("%d,%d je suis à la distance %d\n",i,j, arena[i][j][0]);
 			printf("arena[%d][%d][north] = %d\n", i,j, arena[i][j][1]);
 			printf("arena[%d][%d][east ] = %d\n", i,j, arena[i][j][2]);

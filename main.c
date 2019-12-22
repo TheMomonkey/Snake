@@ -15,7 +15,7 @@ int main(){
 	int nbTours = 0;
 	int longueur = 1;
 	int forbiddenMoves[4] = {0,0,0,0}; //{N,E,S,W} 1 si interdit
-	int distanceMax = 5;
+	int distanceMax = 10;
 
 	//connexion au serveur
 	//en externe:
@@ -24,7 +24,7 @@ int main(){
 	//connectToServer("localhost", 1234, "asadouki");
 	
 	//récupération des infos
-	waitForSnakeGame("RANDOM_PLAYER difficulty=2 timeout=1000 start=0 seed=2", gameName, &X, &Y, &nbWalls);
+	waitForSnakeGame("SUPER_PLAYER difficulty=2 timeout=1000 start=0 seed=1", gameName, &X, &Y, &nbWalls);
 	int* walls = (int*)malloc(4*nbWalls*sizeof(int));
 	hePlays = getSnakeArena(walls);
 
@@ -117,7 +117,8 @@ int main(){
 
 			updateArena(updatedArena,baseArena,X,Y,myX,myY,mySnake,hisSnake,longueur,forbiddenMoves,distanceMax);
 			//printf("updatedArena[myX=%d][myY=%d][0] = %d\n", myX, myY, updatedArena[myX][myY][0]);
-			printArenaInfo(updatedArena,X,Y);
+			//printArenaInfo(updatedArena,X,Y);
+			//printSnakeInfo(mySnake,X,Y);
 
 			myMove = chooseMyMove(updatedArena,X,Y,myX,myY,distanceMax);
 			//printf("updatedArena[myX+1][myY][0] = %d\n", updatedArena[myX+1][myY][0]);
@@ -159,7 +160,7 @@ int main(){
 			// 	forbiddenMoves[i] = 0;
 			// }
 			printf("Final move = %d\n", myMove);
-			printf("Final myX = %d, myY = %d\n", myX, myY);
+			//printf("Final myX = %d, myY = %d\n", myX, myY);
 		}
 		hePlays = !hePlays;
 		
@@ -207,6 +208,7 @@ int main(){
 	free(walls);
 	free(mySnake);
 	free(hisSnake);
+
 	for (int i = 0; i < X; i++){
 		for (int j = 0; j < Y; j++){
 			free(baseArena[i][j]);
@@ -214,6 +216,7 @@ int main(){
 		free(baseArena[i]);
 	}
 	free(baseArena);
+
 	for (int i = 0; i < X; i++){
 		for (int j = 0; j < Y; j++){
 			free(updatedArena[i][j]);
