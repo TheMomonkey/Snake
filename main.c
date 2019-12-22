@@ -159,6 +159,7 @@ int main(){
 			// 	forbiddenMoves[i] = 0;
 			// }
 			printf("Final move = %d\n", myMove);
+			printf("Final myX = %d, myY = %d\n", myX, myY);
 		}
 		hePlays = !hePlays;
 		
