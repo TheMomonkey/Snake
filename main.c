@@ -24,7 +24,7 @@ int main(){
 	//connectToServer("localhost", 1234, "asadouki");
 	
 	//récupération des infos
-	waitForSnakeGame("RANDOM_PLAYER difficulty=2 timeout=1000 start=0 seed=1", gameName, &X, &Y, &nbWalls);
+	waitForSnakeGame("RANDOM_PLAYER difficulty=2 timeout=1000 start=0 seed=2", gameName, &X, &Y, &nbWalls);
 	int* walls = (int*)malloc(4*nbWalls*sizeof(int));
 	hePlays = getSnakeArena(walls);
 
@@ -116,7 +116,8 @@ int main(){
 
 
 			updateArena(updatedArena,baseArena,X,Y,myX,myY,mySnake,hisSnake,longueur,forbiddenMoves,distanceMax);
-			printf("updatedArena[myX=%d][myY=%d][0] = %d\n", myX, myY, updatedArena[myX][myY][0]);
+			//printf("updatedArena[myX=%d][myY=%d][0] = %d\n", myX, myY, updatedArena[myX][myY][0]);
+			printArenaInfo(updatedArena,X,Y);
 
 			myMove = chooseMyMove(updatedArena,X,Y,myX,myY,distanceMax);
 			//printf("updatedArena[myX+1][myY][0] = %d\n", updatedArena[myX+1][myY][0]);
@@ -157,7 +158,7 @@ int main(){
 			// 	}
 			// 	forbiddenMoves[i] = 0;
 			// }
-			// printf("Final move = %d\n", myMove);
+			printf("Final move = %d\n", myMove);
 		}
 		hePlays = !hePlays;
 		
