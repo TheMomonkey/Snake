@@ -140,7 +140,7 @@ t_return_code getMove( t_move* move )
 
 	/* extract move */
 	sscanf( data, "%d", (int*) move);
-	dispDebug(__FUNCTION__,2,"move: %d, ret: %d",move,ret);
+	dispDebug(__FUNCTION__,2,"move: %d, ret: %d",*move,ret);
 	return ret;
 }
 
