@@ -1,3 +1,11 @@
+/*
+ * arena.h
+ * 
+ * SADOUKI Aya
+ * 
+ */
+
+
 #ifndef __ARENA_H__
 #define __ARENA_H__
 
@@ -10,11 +18,11 @@ void dontTouchWalls(int forbiddenMoves[4], int myX, int myY, int nbWalls, int* w
 //update arena info
 //màj tab coord d'un snake
 void updateSnake(int* snake, int longueur, int curPosx, int curPosy);
-//crée arène + met les forbidden de base (murs+bords)
+//crée arène + met les interdits de base (murs+bords)
 int*** initArena(int X, int Y, int nbWalls, int* walls);
 //prend en compte la position du snake (à placer après les màj de forbiddenMoves) + expansion (réglage distance max expansion)
 void updateArena(int*** updtatedArena, int*** baseArena, int X, int Y,  int myX, int myY, int* mySnake, int* hisSnake, int longueur, int forbiddenMoves[4], int distMaxExp);
-//remonte depuis la distance max jusqu'à ta vieille tete (retourne -1 si ya eu un pb)
+//remonte depuis la distance max jusqu'à ma tete (retourne -1 si pb)
 t_move chooseMyMove(int*** updatedArena, int X, int Y, int myX, int myY, int distMax);
 
 //affichages divers

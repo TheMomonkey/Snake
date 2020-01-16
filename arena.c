@@ -1,3 +1,12 @@
+/*
+ * arena.c
+ * (fonctions utilisée dans le main)
+ * 
+ * SADOUKI Aya
+ * 
+ */
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "snakeAPI.h"
@@ -402,41 +411,3 @@ void printSnakeInfo(int* snake, int X, int Y){
 		printf("snakeX[%d] = %d, snakeY[%d] = %d\n", i/2, snake[i], i/2, snake[i+1]);
 	}
 }
-
-
-
-
-
-
-
-
-			// for (int k = 0; k < 4*nbWalls; k+=4){
-			// 	if (walls[k] == i && walls[k+1] == j){
-			// 		if(walls[k+2] == i-1){ //mur à gauche
-			// 			arena[i][j][4] = 1;
-			// 		}
-			// 		if(walls[k+2] == i+1){ //mur à droite
-			// 			arena[i][j][2] = 1;
-			// 		}
-			// 		if(walls[k+3] == j-1){ //mur en haut
-			// 			arena[i][j][1] = 1;
-			// 		}
-			// 		if(walls[k+3] == j+1){ //mur en bas
-			// 			arena[i][j][3] = 1;
-			// 		}
-			// 	}
-			// 	if (walls[i+2] == i && walls[i+3] == j){
-			// 		if(walls[i] == i-1){ //mur à gauche
-			// 			arena[i][j][4] = 1;
-			// 		}
-			// 		if(walls[i] == i+1){ //mur à droite
-			// 			arena[i][j][2] = 1;
-			// 		}
-			// 		if(walls[i+1] == j-1){ //mur en haut
-			// 			arena[i][j][1] = 1;
-			// 		}
-			// 		if(walls[i+1] == j+1){ //mur en bas
-			// 			arena[i][j][3] = 1;
-			// 		}
-			// 	}
-			// }
