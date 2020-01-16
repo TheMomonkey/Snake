@@ -1,18 +1,15 @@
 SRC = snakeAPI.c clientAPI.c arena.c
 OBJ = snakeAPI.o clientAPI.o arena.o
 
-all: main test
+all: mainASadouki test
 
 %.o: %.c
 	gcc -c $<
 
-main: $(SRC) main.c
-	gcc -g $^ -o $@
-	
-test: $(SRC) test.c
+mainASadouki: $(SRC) mainASadouki.c
 	gcc -g $^ -o $@
 
 clean:
-	rm -f *.o main test
+	rm -f *.o mainASadouki
 	
 .PHONY: all clean
