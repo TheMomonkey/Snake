@@ -1,7 +1,7 @@
 SRC = snakeAPI.c clientAPI.c arena.c
 OBJ = snakeAPI.o clientAPI.o arena.o
 
-all: mainASadouki test
+all: mainASadouki
 
 %.o: %.c
 	gcc -c $<
